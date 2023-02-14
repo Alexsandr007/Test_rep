@@ -5,6 +5,9 @@ class DiscountPercent(models.Model):
     name = models.CharField(max_length=25)
     percent = models.FloatField()
 
+    def __str__(self):
+        return f'{self.name}'
+
 
 class Orders(models.Model):
     number = models.IntegerField(unique=True)
@@ -13,12 +16,18 @@ class Orders(models.Model):
     percent = models.IntegerField()
     discount_amount = models.IntegerField()
 
+    def __str__(self):
+        return f'order {self.number}'
+
 
 class Goods(models.Model):
     order = models.ManyToManyField(Orders)
     name = models.CharField(max_length=50)
     cost = models.FloatField()
     discount_cost = models.FloatField()
+
+    def __str__(self):
+        return {self.name}
 
 
 class Status(models.TextChoices):
