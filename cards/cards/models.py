@@ -26,8 +26,7 @@ class Status(models.TextChoices):
     inactive = 'Inactive'
     frozen = 'Frozen'
 
-
-class Card(models.Model):
+class CardTemplate(models.Model):
     series = models.IntegerField()
     number = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -41,4 +40,19 @@ class Card(models.Model):
     )
     percent = models.ManyToManyField(DiscountPercent)
     order = models.ManyToManyField(Orders)
+
+    class Meta:
+        abstract = True
+
+
+class Card(CardTemplate):
+
+    def __str__(self):
+        return f'Card {self.number}'
+
+
+class BagCards(CardTemplate):
+
+    def __str__(self):
+        return f'BagCard {self.number}'
 
