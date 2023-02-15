@@ -1,5 +1,5 @@
 from django.db import models
-
+from simple_history.models import HistoricalRecords
 
 class DiscountPercent(models.Model):
     name = models.CharField(max_length=25)
@@ -8,6 +8,9 @@ class DiscountPercent(models.Model):
     def __str__(self):
         return f'{self.name}'
 
+    class Meta:
+        verbose_name = "Discount percent"
+        verbose_name_plural = "Discount percents"
 
 class Orders(models.Model):
     number = models.IntegerField(unique=True)
@@ -19,6 +22,9 @@ class Orders(models.Model):
     def __str__(self):
         return f'order {self.number}'
 
+    class Meta:
+        verbose_name = "Order"
+        verbose_name_plural = "Orders"
 
 class Goods(models.Model):
     order = models.ManyToManyField(Orders)
@@ -28,6 +34,10 @@ class Goods(models.Model):
 
     def __str__(self):
         return {self.name}
+
+    class Meta:
+        verbose_name = "Good"
+        verbose_name_plural = "Goods"
 
 
 class Status(models.TextChoices):
@@ -55,13 +65,22 @@ class CardTemplate(models.Model):
 
 
 class Card(CardTemplate):
+    history = HistoricalRecords()
 
     def __str__(self):
         return f'Card {self.number}'
 
+    class Meta:
+        verbose_name = "Card"
+        verbose_name_plural = "Cards"
 
 class BagCards(CardTemplate):
+    history = HistoricalRecords()
 
     def __str__(self):
         return f'BagCard {self.number}'
+
+    class Meta:
+        verbose_name = "BagCard"
+        verbose_name_plural = "BagCards"
 

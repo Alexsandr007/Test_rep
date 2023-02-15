@@ -1,9 +1,8 @@
-from django.urls import path
 from django.contrib import admin
 from .models import DiscountPercent, Orders, Goods, Card, BagCards
 from django.utils.html import format_html
 from django.urls import reverse
-from django.shortcuts import render
+from simple_history.admin import SimpleHistoryAdmin
 from django.http import HttpResponseRedirect
 
 admin.site.register(DiscountPercent)
@@ -32,7 +31,7 @@ def restore_in_cards(obj):
 
 
 @admin.register(BagCards)
-class BagCardsAdmin(admin.ModelAdmin):
+class BagCardsAdmin(SimpleHistoryAdmin):
     list_display = (
         'series',
         'number',
@@ -89,8 +88,14 @@ def add_in_bag(obj):
     bag.save()
 
 
-@admin.register(Card)
-class CardAdmin(admin.ModelAdmin):
+class WebsiteHistoryAdmin(SimpleHistoryAdmin):
+    history_list_display = (
+        'series',
+        'number',
+        'created_at',
+        'date_end',
+        'status',
+    )
     list_display = (
         'series',
         'number',
@@ -106,6 +111,7 @@ class CardAdmin(admin.ModelAdmin):
         'status',
     )
     search_fields = ('series', 'number')
+    list_per_page = 200
 
     def delete_model(self, form, change):
         add_in_bag(change)
@@ -118,3 +124,5 @@ class CardAdmin(admin.ModelAdmin):
             add_in_bag(obj)
         super().delete_queryset(form, queryset)
 
+
+admin.site.register(Card, WebsiteHistoryAdmin)
