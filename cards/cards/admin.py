@@ -95,6 +95,7 @@ class WebsiteHistoryAdmin(SimpleHistoryAdmin):
         'created_at',
         'date_end',
         'status',
+        'view_orders',
     )
     list_display = (
         'series',
@@ -102,6 +103,7 @@ class WebsiteHistoryAdmin(SimpleHistoryAdmin):
         'created_at',
         'date_end',
         'status',
+        'view_orders',
     )
     list_filter = (
         'series',
@@ -123,6 +125,36 @@ class WebsiteHistoryAdmin(SimpleHistoryAdmin):
         for obj in queryset:
             add_in_bag(obj)
         super().delete_queryset(form, queryset)
+
+    def view_orders(self, obj):
+        html = '"<table><tr><th>Number</th><th>Date</th>' \
+               '<th>Sum</th><th>Percent</th><th>Discount Amount</th></tr>'
+        for i in obj.order.all():
+            html_columns = '<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>'.format(
+                i.number,
+                i.date,
+                i.sum,
+                i.percent,
+                i.discount_amount
+            )
+            html += html_columns
+        html += '</table>"'
+        html_end = '<a class="button" id="button_table">View table</a>' \
+                   '<div id="table"></div>' \
+                   '<script>' \
+                   'var count = 0;' \
+                   'if(count == 0){{' \
+                   'var element = document.getElementById("table");' \
+                   'var button = document.getElementById("button_table");' \
+                   'var func = (elem) => elem.innerHTML = {0};' \
+                   'button.onclick = func(element);' \
+                   'count++;' \
+                   '}}' \
+                   'else{{}}' \
+                   '</script>'.format(html)
+                    # написать условие для закрытия
+        return format_html(html_end)
+        # return format_html(html)
 
 
 admin.site.register(Card, WebsiteHistoryAdmin)

@@ -1,6 +1,7 @@
 from django.db import models
 from simple_history.models import HistoricalRecords
 
+
 class DiscountPercent(models.Model):
     name = models.CharField(max_length=25)
     percent = models.FloatField()
@@ -11,6 +12,7 @@ class DiscountPercent(models.Model):
     class Meta:
         verbose_name = "Discount percent"
         verbose_name_plural = "Discount percents"
+
 
 class Orders(models.Model):
     number = models.IntegerField(unique=True)
@@ -25,6 +27,7 @@ class Orders(models.Model):
     class Meta:
         verbose_name = "Order"
         verbose_name_plural = "Orders"
+
 
 class Goods(models.Model):
     order = models.ManyToManyField(Orders)
@@ -44,6 +47,7 @@ class Status(models.TextChoices):
     active = 'Active'
     inactive = 'Inactive'
     frozen = 'Frozen'
+
 
 class CardTemplate(models.Model):
     series = models.IntegerField()
@@ -73,6 +77,7 @@ class Card(CardTemplate):
     class Meta:
         verbose_name = "Card"
         verbose_name_plural = "Cards"
+
 
 class BagCards(CardTemplate):
     history = HistoricalRecords()
