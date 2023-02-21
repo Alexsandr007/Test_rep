@@ -5,6 +5,7 @@ from django.urls import reverse
 from simple_history.admin import SimpleHistoryAdmin
 from django.http import HttpResponseRedirect
 
+
 admin.site.register(DiscountPercent)
 admin.site.register(Orders)
 admin.site.register(Goods)
@@ -32,20 +33,8 @@ def restore_in_cards(obj):
 
 @admin.register(BagCards)
 class BagCardsAdmin(SimpleHistoryAdmin):
-    list_display = (
-        'series',
-        'number',
-        'created_at',
-        'date_end',
-        'status',
-    )
-    list_filter = (
-        'series',
-        'number',
-        'created_at',
-        'date_end',
-        'status',
-    )
+    list_display = ('series', 'number', 'created_at', 'date_end', 'status',)
+    list_filter = ('series', 'number', 'created_at', 'date_end', 'status',)
     search_fields = ('series', 'number')
     actions = ['restore_actions']
     change_form_template = "admin/cards/my_change_form.html"
@@ -89,29 +78,9 @@ def add_in_bag(obj):
 
 
 class WebsiteHistoryAdmin(SimpleHistoryAdmin):
-    history_list_display = (
-        'series',
-        'number',
-        'created_at',
-        'date_end',
-        'status',
-        'view_orders',
-    )
-    list_display = (
-        'series',
-        'number',
-        'created_at',
-        'date_end',
-        'status',
-        'view_orders',
-    )
-    list_filter = (
-        'series',
-        'number',
-        'created_at',
-        'date_end',
-        'status',
-    )
+    history_list_display = ('series', 'number', 'created_at', 'date_end', 'status', 'view_orders',)
+    list_display = ('series', 'number', 'created_at', 'date_end', 'status', 'view_orders',)
+    list_filter = ('series', 'number', 'created_at', 'date_end', 'status',)
     search_fields = ('series', 'number')
     list_per_page = 200
 
@@ -139,22 +108,23 @@ class WebsiteHistoryAdmin(SimpleHistoryAdmin):
             )
             html += html_columns
         html += '</table>"'
-        html_end = '<a class="button" id="button_table">View table</a>' \
+        html_end = '<a class="button" id="button_table" onclick="func()">View table</a>' \
                    '<div id="table"></div>' \
                    '<script>' \
                    'var count = 0;' \
-                   'if(count == 0){{' \
-                   'var element = document.getElementById("table");' \
-                   'var button = document.getElementById("button_table");' \
-                   'var func = (elem) => elem.innerHTML = {0};' \
-                   'button.onclick = func(element);' \
-                   'count++;' \
-                   '}}' \
-                   'else{{}}' \
+                   'function func() {{{{' \
+                   'var elem = document.getElementById("table");' \
+                   'if(count === 0) {{{{elem.innerHTML = {0};count++;}}}}' \
+                   'else {{{{elem.innerHTML = "";count--}}}}' \
+                   '}}}}' \
                    '</script>'.format(html)
                     # написать условие для закрытия
         return format_html(html_end)
-        # return format_html(html)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        print(form.base_fields['order'].to_python)
+        return form
 
 
 admin.site.register(Card, WebsiteHistoryAdmin)
