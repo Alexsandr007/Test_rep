@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from simple_history.models import HistoricalRecords
 
@@ -22,7 +24,7 @@ class Orders(models.Model):
     discount_amount = models.IntegerField()
 
     def __str__(self):
-        return f'order {self.number}'
+        return f'order: {self.number}| date: {self.date}| sum: {self.sum}| percent:{self.percent}| discount amount: {self.discount_amount}'
 
     class Meta:
         verbose_name = "Order"
@@ -49,11 +51,17 @@ class Status(models.TextChoices):
     frozen = 'Frozen'
 
 
+def default_datetime():
+    date = datetime.datetime.now()
+    new_year = int(date.year) + 2
+    date_end = datetime.date(new_year, date.month, date.day)
+    return date_end
+
 class CardTemplate(models.Model):
     series = models.IntegerField()
     number = models.IntegerField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    date_end = models.DateTimeField()
+    created_at = models.DateField(auto_now_add=True)
+    date_end = models.DateField(default=default_datetime)
     latest_use = models.DateTimeField(auto_now=True)
     summa_purchases = models.IntegerField()
     status = models.CharField(
@@ -61,8 +69,8 @@ class CardTemplate(models.Model):
         choices=Status.choices,
         default=Status.active
     )
-    percent = models.ManyToManyField(DiscountPercent)
-    order = models.ManyToManyField(Orders)
+    percent = models.ForeignKey(DiscountPercent, on_delete=models.CASCADE)
+    order = models.ManyToManyField(Orders, null=True, blank=True)
 
     class Meta:
         abstract = True
