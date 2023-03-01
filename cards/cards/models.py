@@ -71,7 +71,21 @@ class BagCards(CardTemplate):
         verbose_name_plural = "BagCards"
 
 
+class Goods(models.Model):
+    name = models.CharField(max_length=50)
+    cost = models.FloatField()
+    discount_cost = models.FloatField()
+
+    def __str__(self):
+        return {self.name}
+
+    class Meta:
+        verbose_name = "Good"
+        verbose_name_plural = "Goods"
+
+
 class Orders(models.Model):
+    goods = models.ManyToManyField(Goods)
     number = models.IntegerField(unique=True)
     date = models.DateTimeField(auto_now_add=True)
     sum = models.IntegerField()
@@ -86,19 +100,3 @@ class Orders(models.Model):
         ordering = ['-date']
         verbose_name = "Order"
         verbose_name_plural = "Orders"
-
-
-class Goods(models.Model):
-    order = models.ManyToManyField(Orders)
-    name = models.CharField(max_length=50)
-    cost = models.FloatField()
-    discount_cost = models.FloatField()
-
-    def __str__(self):
-        return {self.name}
-
-    class Meta:
-        verbose_name = "Good"
-        verbose_name_plural = "Goods"
-
-
