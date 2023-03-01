@@ -114,7 +114,6 @@ class WebsiteHistoryAdmin(SimpleHistoryAdmin):
     def view_orders(self, obj):
         html = '"<table><tr><th>Number</th><th>Date</th>' \
                '<th>Sum</th><th>Percent</th><th>Discount Amount</th></tr>'
-        print(obj.order.all())
         print(obj)
         if not obj.order.all():
             html += '</table>"'

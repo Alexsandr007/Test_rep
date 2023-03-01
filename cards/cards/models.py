@@ -16,39 +16,13 @@ class DiscountPercent(models.Model):
         verbose_name_plural = "Discount percents"
 
 
-class Orders(models.Model):
-    number = models.IntegerField(unique=True)
-    date = models.DateTimeField(auto_now_add=True)
-    sum = models.IntegerField()
-    percent = models.IntegerField()
-    discount_amount = models.IntegerField()
-
-    def __str__(self):
-        return f'order: {self.number}| date: {self.date}| sum: {self.sum}| percent:{self.percent}| discount amount: {self.discount_amount}'
-
-    class Meta:
-        verbose_name = "Order"
-        verbose_name_plural = "Orders"
-
-
-class Goods(models.Model):
-    order = models.ManyToManyField(Orders)
-    name = models.CharField(max_length=50)
-    cost = models.FloatField()
-    discount_cost = models.FloatField()
-
-    def __str__(self):
-        return {self.name}
-
-    class Meta:
-        verbose_name = "Good"
-        verbose_name_plural = "Goods"
 
 
 class Status(models.TextChoices):
     active = 'Active'
     inactive = 'Inactive'
     frozen = 'Frozen'
+    overdue = 'Overdue'
 
 
 def default_datetime():
@@ -70,7 +44,6 @@ class CardTemplate(models.Model):
         default=Status.active
     )
     percent = models.ForeignKey(DiscountPercent, on_delete=models.CASCADE)
-    order = models.ManyToManyField(Orders, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -96,4 +69,37 @@ class BagCards(CardTemplate):
     class Meta:
         verbose_name = "BagCard"
         verbose_name_plural = "BagCards"
+
+
+class Orders(models.Model):
+    number = models.IntegerField(unique=True)
+    date = models.DateTimeField(auto_now_add=True)
+    sum = models.IntegerField()
+    percent = models.IntegerField()
+    discount_amount = models.IntegerField()
+    card = models.ForeignKey(Card, on_delete=models.CASCADE, null=True, blank=True, related_name='order')
+
+
+    def __str__(self):
+        return f'order: {self.number}| date: {self.date}| sum: {self.sum}| percent:{self.percent}| discount amount: {self.discount_amount}'
+
+    class Meta:
+        ordering = ['-date']
+        verbose_name = "Order"
+        verbose_name_plural = "Orders"
+
+
+class Goods(models.Model):
+    order = models.ManyToManyField(Orders)
+    name = models.CharField(max_length=50)
+    cost = models.FloatField()
+    discount_cost = models.FloatField()
+
+    def __str__(self):
+        return {self.name}
+
+    class Meta:
+        verbose_name = "Good"
+        verbose_name_plural = "Goods"
+
 
