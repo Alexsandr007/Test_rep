@@ -1,7 +1,8 @@
-import datetime
+import random
 
 from django.db import models
 from simple_history.models import HistoricalRecords
+from .services.generate_fieds_for_models import default_datetime
 
 
 class DiscountPercent(models.Model):
@@ -25,15 +26,40 @@ class Status(models.TextChoices):
     overdue = 'Overdue'
 
 
-def default_datetime():
-    date = datetime.datetime.now()
-    new_year = int(date.year) + 2
-    date_end = datetime.date(new_year, date.month, date.day)
-    return date_end
+
+
+
+def default_percent():
+    percent = DiscountPercent.objects.get(name='default')
+    return percent
+
+
+def sum_digits(x):
+  res = 0
+
+  while x:
+    res += x % 10
+    x //= 10
+
+  return res
+
+
+def gen_smth(N):
+  digit = random.randint(1, 9)
+  mid = random.randint(0, 10**N - 1)
+  if sum_digits(mid) % 2:
+    mid -= 1
+  rez = (digit * 10**N + mid) * 10 + digit
+  if Card.objects.filter(number=rez).exists() and BagCards.objects.filter(number=rez).exists():
+    gen_smth(3)
+  return rez
+
+def generate_number():
+    return gen_smth(3)
 
 class CardTemplate(models.Model):
     series = models.IntegerField()
-    number = models.IntegerField()
+    number = models.IntegerField(default=generate_number)
     created_at = models.DateField(auto_now_add=True)
     date_end = models.DateField(default=default_datetime)
     latest_use = models.DateTimeField(auto_now=True)
@@ -43,7 +69,7 @@ class CardTemplate(models.Model):
         choices=Status.choices,
         default=Status.active
     )
-    percent = models.ForeignKey(DiscountPercent, on_delete=models.CASCADE)
+    percent = models.ForeignKey(DiscountPercent, on_delete=models.CASCADE, default=default_percent)
 
     class Meta:
         abstract = True
@@ -77,7 +103,7 @@ class Goods(models.Model):
     discount_cost = models.FloatField()
 
     def __str__(self):
-        return {self.name}
+        return self.name
 
     class Meta:
         verbose_name = "Good"
@@ -88,7 +114,7 @@ class Orders(models.Model):
     goods = models.ManyToManyField(Goods)
     number = models.IntegerField(unique=True)
     date = models.DateTimeField(auto_now_add=True)
-    sum = models.IntegerField()
+    sum = models.FloatField()
     percent = models.IntegerField(null=True, blank=True)
     discount_amount = models.IntegerField(null=True, blank=True)
     card = models.ForeignKey(Card, on_delete=models.CASCADE, null=True, blank=True, related_name='order')

@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect
-from .services.generate_device_id import gen_smth
+from .models import gen_smth
 from .models import Card, DiscountPercent, Orders, Goods
 from rest_framework.viewsets import ModelViewSet
 from .serializers import CardSerializer, OrdersSerializer, DiscountPercentSerializer, GoodsSerializer
