@@ -9,8 +9,21 @@ from django.urls import path
 
 
 admin.site.register(DiscountPercent)
-admin.site.register(Orders)
 admin.site.register(Goods)
+
+class OrdersAdmin(admin.ModelAdmin):
+    exclude = ['discount_amount', 'percent']
+    def save_model(self, request, obj, form, change):
+        form = form.save(commit=False)
+        card = form.card
+        percent_models = card.percent
+        percent = percent_models.percent
+        form.percent = percent
+        form.discount_amount = (form.sum * percent) / 100
+        form.save()
+
+
+admin.site.register(Orders, OrdersAdmin)
 
 
 def restore_in_cards(obj):

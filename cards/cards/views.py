@@ -1,8 +1,8 @@
 from django.http import HttpResponseRedirect
 from .services.generate_device_id import gen_smth
-from .models import Card, DiscountPercent, Orders
+from .models import Card, DiscountPercent, Orders, Goods
 from rest_framework.viewsets import ModelViewSet
-from .serializers import CardSerializer, OrdersSerializer
+from .serializers import CardSerializer, OrdersSerializer, DiscountPercentSerializer, GoodsSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
@@ -21,6 +21,20 @@ def generate_cards(request):
     return HttpResponseRedirect("/admin/cards/card/")
 
 
+class DiscountPercentViewSet(ModelViewSet):
+    queryset = DiscountPercent.objects.all()
+    serializer_class = DiscountPercentSerializer
+
+
+class OrdersViewSet(ModelViewSet):
+    queryset = Orders.objects.all()
+    serializer_class = OrdersSerializer
+
+
+class GoodsViewSet(ModelViewSet):
+    queryset = Goods.objects.all()
+    serializer_class = GoodsSerializer
+
 
 class CardViewSet(ModelViewSet):
     queryset = Card.objects.all()
@@ -28,7 +42,7 @@ class CardViewSet(ModelViewSet):
 
 
     @action(detail=True, methods=['post'], serializer_class=OrdersSerializer)
-    def add_order(self, request, pk=None):
+    def add_order(self, request, pk):
         card = self.get_object()
         if card.status != 'Overdue':
             serializer = OrdersSerializer(data=request.data)

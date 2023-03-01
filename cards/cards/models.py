@@ -75,10 +75,9 @@ class Orders(models.Model):
     number = models.IntegerField(unique=True)
     date = models.DateTimeField(auto_now_add=True)
     sum = models.IntegerField()
-    percent = models.IntegerField()
-    discount_amount = models.IntegerField()
+    percent = models.IntegerField(null=True, blank=True)
+    discount_amount = models.IntegerField(null=True, blank=True)
     card = models.ForeignKey(Card, on_delete=models.CASCADE, null=True, blank=True, related_name='order')
-
 
     def __str__(self):
         return f'order: {self.number}| date: {self.date}| sum: {self.sum}| percent:{self.percent}| discount amount: {self.discount_amount}'
