@@ -11,6 +11,7 @@ class OrdersFilter(FilterSet):
         model = Orders
         fields = ['from_date','to_date',]
 
+
 class CardsFilter(FilterSet):
     from_created= DateTimeFilter(field_name='created_at',
                                              lookup_expr='gte')

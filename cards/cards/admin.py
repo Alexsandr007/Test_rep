@@ -8,12 +8,12 @@ from django.http import HttpResponseRedirect
 from django.urls import path
 
 
-
 admin.site.register(DiscountPercent)
 admin.site.register(Goods)
 
+
 class OrdersAdmin(admin.ModelAdmin):
-    exclude = ['discount_amount', 'percent']
+    exclude = ['discount_amount', 'percent', 'bag_id']
 
     def save_model(self, request, obj, form, change):
         form = form.save(commit=False)
@@ -101,10 +101,11 @@ class OrdersInline(admin.StackedInline):
     model = Orders
     readonly_fields = ('number','goods','date','sum','percent','discount_amount')
     can_delete = False
+    exclude = ['bag_id']
 
 
 class WebsiteHistoryAdmin(SimpleHistoryAdmin):
-    history_list_display = ('series', 'number', 'created_at', 'date_end', 'status', 'view_orders',)
+    history_list_display = ('series', 'number', 'created_at', 'date_end', 'status')
     list_display = ('series', 'number','created_at', 'date_end', 'status', 'view_orders',)
     list_filter = ('series', 'number', 'created_at', 'date_end', 'status',)
     search_fields = ('series', 'number')
@@ -117,7 +118,6 @@ class WebsiteHistoryAdmin(SimpleHistoryAdmin):
     ]
 
     def generate_cards_form(self, request):
-        # self.message_user(request, f"создано {count} новых записей")
         return render(request, 'admin/cards/generate.html')
 
     def get_urls(self):
@@ -179,12 +179,9 @@ class WebsiteHistoryAdmin(SimpleHistoryAdmin):
                        'else {{{{elem.innerHTML = "";count--}}}}' \
                        '}}}}' \
                        '</script>'.format(html)
-                            # написать условие для закрытия
             return format_html(html_end)
 
     def activate_status_actions(self, request, queryset):
-        print(self)
-        print(queryset)
         count = 0
         for obj in queryset:
             count +=1
@@ -199,8 +196,6 @@ class WebsiteHistoryAdmin(SimpleHistoryAdmin):
 
     def deactivate_status_actions(self, request, queryset):
         count = 0
-        print(self)
-        print(queryset)
         for obj in queryset:
             count +=1
             obj.status = 'Inactive'

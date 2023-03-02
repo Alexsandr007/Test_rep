@@ -17,16 +17,11 @@ class DiscountPercent(models.Model):
         verbose_name_plural = "Discount percents"
 
 
-
-
 class Status(models.TextChoices):
     active = 'Active'
     inactive = 'Inactive'
     frozen = 'Frozen'
     overdue = 'Overdue'
-
-
-
 
 
 def default_percent():
@@ -54,8 +49,10 @@ def gen_smth(N):
     gen_smth(3)
   return rez
 
+
 def generate_number():
     return gen_smth(3)
+
 
 class CardTemplate(models.Model):
     series = models.IntegerField()

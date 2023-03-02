@@ -1,5 +1,4 @@
 from rest_framework import serializers
-
 from .models import Card, Orders, DiscountPercent, Goods
 
 
@@ -31,5 +30,3 @@ class CardSerializer(serializers.ModelSerializer):
         model = Card
         fields = '__all__'
         depth = 2
-
-

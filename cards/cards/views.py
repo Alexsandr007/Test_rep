@@ -1,3 +1,6 @@
+import schedule
+import datetime
+
 from django.http import HttpResponseRedirect
 from .models import gen_smth, default_percent
 from .models import Card, DiscountPercent, Orders, Goods
@@ -7,14 +10,12 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
-import schedule
-import datetime
 from .services.filter_class import OrdersFilter, CardsFilter
 
+
 def generate_cards(request):
-    print(request.POST)
     if request.POST['number'] == '':
-        return HttpResponseRedirect("/cards/card/")
+        return HttpResponseRedirect("/admin/cards/card/")
     for i in range(int(request.POST['number'])):
         percent = DiscountPercent.objects.get(name='default')
         card = Card(series=request.POST['series'],number=gen_smth(3),created_at=request.POST['date_start_0'],date_end=request.POST['date_end_0'],summa_purchases=0,status='Active',percent=percent)
@@ -49,9 +50,7 @@ class CardViewSet(ModelViewSet):
         card = self.get_object()
         if card.status != 'Overdue':
             serializer = OrdersSerializer(data=request.data)
-            print(serializer.initial_data)
             try:
-                print(3)
                 percent = default_percent()
                 order = Orders.objects.create(
                     number=int(serializer.initial_data['number']),
@@ -60,9 +59,7 @@ class CardViewSet(ModelViewSet):
                     sum=serializer.initial_data['sum'],
                     card=card
                 )
-                print(4)
                 for obj in serializer.initial_data['goods']:
-                    print(15)
                     try:
                         goods = Goods.objects.get(name=obj['name'])
                     except:
@@ -74,19 +71,16 @@ class CardViewSet(ModelViewSet):
                         order.save()
                         pass
                     else:
-                        print(5)
                         goods = Goods(
                             name=obj['name'],
                             cost=obj['cost'],
                             discount_cost=obj['discount_cost']
                         )
-                        print(6)
                         goods.save()
                         goods.orders_set.add(order)
                         order.save()
                 return Response({'status': 'adding order complete'})
             except:
-                print(10)
                 if serializer.is_valid():
                     order = Orders.objects.create(
                         number=serializer.validated_data['number'],

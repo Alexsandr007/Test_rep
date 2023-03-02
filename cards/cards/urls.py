@@ -35,6 +35,7 @@ schema_view = get_schema_view(
     permission_classes=[permissions.AllowAny],
 )
 
+
 router = routers.SimpleRouter()
 router.register('cards', CardViewSet, basename='cards')
 router.register('orders', OrdersViewSet, basename='orders')
@@ -49,7 +50,6 @@ urlpatterns = [
     path('generate/', views.generate_cards, name='generate_cards'),
     path('admin/', admin.site.urls),
 ]
-
 
 
 urlpatterns += router.urls
