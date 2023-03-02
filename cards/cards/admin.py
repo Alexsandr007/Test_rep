@@ -8,11 +8,13 @@ from django.http import HttpResponseRedirect
 from django.urls import path
 
 
+
 admin.site.register(DiscountPercent)
 admin.site.register(Goods)
 
 class OrdersAdmin(admin.ModelAdmin):
     exclude = ['discount_amount', 'percent']
+
     def save_model(self, request, obj, form, change):
         form = form.save(commit=False)
         card = form.card
@@ -27,8 +29,7 @@ admin.site.register(Orders, OrdersAdmin)
 
 
 def restore_in_cards(obj):
-    percent = obj.percent.all()
-    order = obj.order.all()
+    percent = obj.percent
     card = Card.objects.create(
         series=obj.series,
         number=obj.number,
@@ -38,10 +39,7 @@ def restore_in_cards(obj):
         summa_purchases=obj.summa_purchases,
         status=obj.status,
     )
-    for obj_percent in percent:
-        card.percent.add(obj_percent)
-    for obj_order in order:
-        card.order.add(obj_order)
+    card.percent = percent
     card.save()
     obj.delete()
 
@@ -74,7 +72,8 @@ class BagCardsAdmin(SimpleHistoryAdmin):
 
 
 def add_in_bag(obj):
-    percent = obj.percent.all()
+    percent = obj.percent
+    print(percent)
     order = obj.order.all()
     bag = BagCards.objects.create(
         series=obj.series,
@@ -85,10 +84,7 @@ def add_in_bag(obj):
         summa_purchases=obj.summa_purchases,
         status=obj.status,
     )
-    for obj_percent in percent:
-        bag.percent.add(obj_percent)
-    for obj_order in order:
-        bag.order.add(obj_order)
+    bag.percent = percent
     bag.save()
 
 

@@ -26,7 +26,7 @@ class DiscountPercentSerializer(serializers.ModelSerializer):
 
 
 class CardSerializer(serializers.ModelSerializer):
-
+    order = OrdersSerializer(read_only=True,many=True)
     class Meta:
         model = Card
         fields = '__all__'

@@ -6,9 +6,10 @@ from .serializers import CardSerializer, OrdersSerializer, DiscountPercentSerial
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from django_filters.rest_framework import DjangoFilterBackend
 import schedule
 import datetime
-import time
+from .services.filter_class import OrdersFilter, CardsFilter
 
 def generate_cards(request):
     print(request.POST)
@@ -27,8 +28,9 @@ class DiscountPercentViewSet(ModelViewSet):
 
 
 class OrdersViewSet(ModelViewSet):
-    queryset = Orders.objects.all()
     serializer_class = OrdersSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = OrdersFilter
 
 
 class GoodsViewSet(ModelViewSet):
@@ -39,7 +41,8 @@ class GoodsViewSet(ModelViewSet):
 class CardViewSet(ModelViewSet):
     queryset = Card.objects.all()
     serializer_class = CardSerializer
-
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = CardsFilter
 
     @action(detail=True, methods=['post'], serializer_class=OrdersSerializer)
     def add_order(self, request, pk):
@@ -51,10 +54,16 @@ class CardViewSet(ModelViewSet):
                 order = Orders.objects.create(
                     number=serializer.validated_data['number'],
                     sum=serializer.validated_data['sum'],
-                    percent=serializer.validated_data['percent'],
-                    discount_amount=serializer.validated_data['discount_amount'],
-                    card=card,
                 )
+                order.save()
+                for obj in serializer.validated_data['goods']:
+                    goods = Goods.objects.create(
+                        name=obj['name'],
+                        cost=obj['cost'],
+                        discount_cost=obj['discount_cost']
+                    )
+                    goods.save()
+                    order.goods.add(goods)
                 order.save()
                 return Response({'status': 'adding order complete'})
             else:
