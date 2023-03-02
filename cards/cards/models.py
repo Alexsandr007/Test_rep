@@ -98,7 +98,7 @@ class BagCards(CardTemplate):
 
 
 class Goods(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50,unique=True)
     cost = models.FloatField()
     discount_cost = models.FloatField()
 
@@ -116,11 +116,12 @@ class Orders(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     sum = models.FloatField()
     percent = models.IntegerField(null=True, blank=True)
-    discount_amount = models.IntegerField(null=True, blank=True)
-    card = models.ForeignKey(Card, on_delete=models.CASCADE, null=True, blank=True, related_name='order')
+    discount_amount = models.FloatField(null=True, blank=True)
+    card = models.ForeignKey(Card, models.SET_NULL, null=True, blank=True, related_name='order')
+    bag_id = models.IntegerField(null=True, blank=True, default=0)
 
     def __str__(self):
-        return f'order: {self.number}| date: {self.date}| sum: {self.sum}| percent:{self.percent}| discount amount: {self.discount_amount}'
+        return f'order: {self.number}| date: {self.date.strftime("%m/%d/%Y, %H:%M:%S")}| sum: {self.sum}| percent:{self.percent}| discount amount: {self.discount_amount}'
 
     class Meta:
         ordering = ['-date']

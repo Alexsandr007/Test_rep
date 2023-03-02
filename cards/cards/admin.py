@@ -30,6 +30,7 @@ admin.site.register(Orders, OrdersAdmin)
 
 def restore_in_cards(obj):
     percent = obj.percent
+    orders = Orders.objects.filter(bag_id=obj.id)
     card = Card.objects.create(
         series=obj.series,
         number=obj.number,
@@ -38,9 +39,12 @@ def restore_in_cards(obj):
         latest_use=obj.latest_use,
         summa_purchases=obj.summa_purchases,
         status=obj.status,
+        percent=percent
     )
-    card.percent = percent
     card.save()
+    for i in orders:
+        i.card = card
+        i.save()
     obj.delete()
 
 
@@ -85,18 +89,32 @@ def add_in_bag(obj):
         status=obj.status,
     )
     bag.percent = percent
+    for i in obj.order.all():
+        print(i)
+        i.bag_id = bag.id
+        i.save()
     bag.save()
+
+
+class OrdersInline(admin.StackedInline):
+    extra = 0
+    model = Orders
+    readonly_fields = ('number','goods','date','sum','percent','discount_amount')
+    can_delete = False
 
 
 class WebsiteHistoryAdmin(SimpleHistoryAdmin):
     history_list_display = ('series', 'number', 'created_at', 'date_end', 'status', 'view_orders',)
-    list_display = ('series', 'number', 'status', 'view_orders',)
+    list_display = ('series', 'number','created_at', 'date_end', 'status', 'view_orders',)
     list_filter = ('series', 'number', 'created_at', 'date_end', 'status',)
     search_fields = ('series', 'number')
     actions = ['activate_status_actions', 'deactivate_status_actions']
     exclude = ['date_end']
     list_per_page = 200
     change_list_template = "admin/cards/cards_change_list.html"
+    inlines = [
+        OrdersInline,
+    ]
 
     def generate_cards_form(self, request):
         # self.message_user(request, f"создано {count} новых записей")
@@ -142,7 +160,7 @@ class WebsiteHistoryAdmin(SimpleHistoryAdmin):
             for i in obj.order.all():
                 html_columns = '<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>'.format(
                     i.number,
-                    i.date,
+                    i.date.strftime("%m/%d/%Y, %H:%M:%S"),
                     i.sum,
                     i.percent,
                     i.discount_amount

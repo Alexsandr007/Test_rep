@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect
-from .models import gen_smth
+from .models import gen_smth, default_percent
 from .models import Card, DiscountPercent, Orders, Goods
 from rest_framework.viewsets import ModelViewSet
 from .serializers import CardSerializer, OrdersSerializer, DiscountPercentSerializer, GoodsSerializer
@@ -49,25 +49,51 @@ class CardViewSet(ModelViewSet):
         card = self.get_object()
         if card.status != 'Overdue':
             serializer = OrdersSerializer(data=request.data)
-            print(serializer)
-            if serializer.is_valid():
+            print(serializer.initial_data)
+            try:
+                print(3)
+                percent = default_percent()
                 order = Orders.objects.create(
-                    number=serializer.validated_data['number'],
-                    sum=serializer.validated_data['sum'],
+                    number=int(serializer.initial_data['number']),
+                    percent=percent.percent,
+                    discount_amount=(serializer.initial_data['sum'] * percent.percent) / 100,
+                    sum=serializer.initial_data['sum'],
+                    card=card
                 )
-                order.save()
-                for obj in serializer.validated_data['goods']:
-                    goods = Goods.objects.create(
-                        name=obj['name'],
-                        cost=obj['cost'],
-                        discount_cost=obj['discount_cost']
-                    )
-                    goods.save()
-                    order.goods.add(goods)
-                order.save()
+                print(4)
+                for obj in serializer.initial_data['goods']:
+                    print(15)
+                    try:
+                        goods = Goods.objects.get(name=obj['name'])
+                    except:
+                        goods = False
+                    if goods:
+                        print(goods)
+                        order.goods.add(goods)
+                        goods.orders_set.add(order)
+                        order.save()
+                        pass
+                    else:
+                        print(5)
+                        goods = Goods(
+                            name=obj['name'],
+                            cost=obj['cost'],
+                            discount_cost=obj['discount_cost']
+                        )
+                        print(6)
+                        goods.save()
+                        goods.orders_set.add(order)
+                        order.save()
                 return Response({'status': 'adding order complete'})
-            else:
-                return Response(serializer.errors,
+            except:
+                print(10)
+                if serializer.is_valid():
+                    order = Orders.objects.create(
+                        number=serializer.validated_data['number'],
+                        sum=serializer.validated_data['sum'],
+                    )
+                else:
+                    return Response(serializer.errors,
                                 status=status.HTTP_400_BAD_REQUEST)
 
 
