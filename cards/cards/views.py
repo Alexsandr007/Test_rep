@@ -65,7 +65,7 @@ class CardViewSet(ModelViewSet):
                     except:
                         goods = False
                     if goods:
-                        print(lollolo)
+                        print(lolo)
                         order.goods.add(goods)
                         goods.orders_set.add(order)
                         order.save()
