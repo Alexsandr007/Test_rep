@@ -12,7 +12,7 @@ from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
 from .services.filter_class import OrdersFilter, CardsFilter
 
-
+lol
 def generate_cards(request):
     if request.POST['number'] == '':
         return HttpResponseRedirect("/admin/cards/card/")
